@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import seaborn as sns
+import matplotlib.pyplot as plt
 #from numerize import numerize
 
 st.set_page_config(
@@ -15,7 +17,7 @@ with st.container():
 
 df = pd.read_csv('clean data bumbu.csv')
 
-with st.expander("Rata-rata Pengeluaran Perkapita Seminggu Sambal Jadi Per Kabupaten/Kota (Rupiah/Kapita/Minggu) 2028 - 2022"):
+with st.expander("Rata-rata Pengeluaran Perkapita Seminggu Sambal Jadi Per Kabupaten/Kota (Rupiah/Kapita/Minggu) 2018 - 2022"):
     df.columns = ['Kabupaten/Kota', 'Konsumsi Sambal Jadi', 'Tahun', 'Provinsi']
     st.dataframe(df, use_container_width=True)
     # Rename the columns for better understanding
@@ -88,5 +90,29 @@ with avg_text:
         else:
             top_provinsi = pivot_provinsi.nsmallest(5, 'Konsumsi Sambal Jadi')
             st.dataframe(top_provinsi, use_container_width=True)
-        
 
+dfbaru = pd.read_csv('clean data bumbu - reordered.csv')
+
+with st.expander("Rata-rata Pengeluaran Perkapita Seminggu Sambal Jadi, Bumbu Racikan, dan Cabe Per Kabupaten/Kota (Rupiah/Kapita/Minggu) 2018 - 2022"):
+    dfbaru.columns = ['Kabupaten/Kota', 'Provinsi', 'Sambal Jadi', 'Bumbu Racikan', 'Cabe Merah', 'Cabe Hijau', 'Cabe Rawit', 'Tahun']
+    st.dataframe(dfbaru, use_container_width=True)
+    # Rename the columns for better understanding
+    st.write('Sumber : BPS (https://www.bps.go.id/indicator/5/2116/1/rata-rata-pengeluaran-perkapita-seminggu-menurut-kelompok-sayur-sayuran-per-kabupaten-kota.html)')
+
+dfbaru_heatmap = dfbaru[['Sambal Jadi', 'Bumbu Racikan', 'Cabe Merah', 'Cabe Hijau', 'Cabe Rawit']].copy() 
+
+# Calculate the correlation matrix
+corr_matrix = dfbaru_heatmap.corr()
+fig, ax = plt.subplots()
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax)
+# Set the title of the heatmap
+ax.set_title('Correlation Heatmap')
+
+
+# Create two columns
+heatmap1, col2 = st.columns(2)
+with heatmap1:
+    # Content for the first column
+    st.write("Heatmap Konsumsi Sambal Jadi, Bumbu Racikan, dan Cabe (Rupiah/Kapita/Minggu)")
+    # Display the heatmap using Streamlit
+    st.pyplot(fig)
